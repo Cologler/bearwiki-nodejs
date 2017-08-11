@@ -1,12 +1,10 @@
 // ==UserScript==
-// @name               New Userscript
-// @name:zh-CN         New Userscript
+// @name               BearWiki
 // @namespace          https://github.com/cologler/
 // @version            0.1
 // @description        try to take over the world!
-// @description:zh-CN  try to take over the world!
 // @author             cologler
-// @match              http://*/*
+// @match              https://tieba.baidu.com/*
 // @match              https://bangumi.bilibili.com/anime/*
 // @connect            .githubusercontent.com
 // @connect            .github.com
@@ -107,6 +105,7 @@
 
         loadSite() {
             let self = this;
+            console.log(`${endpoint}/${self._site.namespace}/data.json`)
             GM_xmlhttpRequest({
                 method: 'GET',
                 url: `${endpoint}/${self._site.namespace}/data.json`,
@@ -358,8 +357,13 @@
                 if (rules) {
                     return rules.some(z => matchRule(z, url));
                 }
-            } else {
-
+            } else if (location.host === 'tieba.baidu.com') {
+                let rules = this._data.siteMap['tieba'];
+                let tbn = document.querySelector('.card_title_fname');
+                if (tbn && rules) {
+                    let val = tbn.title;
+                    return rules.some(z => matchRule(z, val));
+                }
             }
 
             return false;
@@ -381,7 +385,7 @@
                 }
             }
             return null;
-        });
+        })();
 
         if (site) {
             let siteContext = new SiteContext(site);
