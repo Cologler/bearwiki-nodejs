@@ -9,7 +9,8 @@ async function work() {
     const dom = new JSDOM(response.body);
 
     let data = {
-        Characters: {}
+        endpoint: 'http://you-zitsu.com',
+        characters: {}
     };
     dom.window.document.querySelectorAll('.chara-list .chara-nav').forEach(z => {
         let charaId = z.hash;
@@ -26,7 +27,7 @@ async function work() {
             propertiesMap[t[0]] = t[1];
         });
 
-        data.Characters[characterName] = {
+        data.characters[characterName] = {
             name: characterName,
             cv: cvName,
             images: {
@@ -55,7 +56,7 @@ async function work() {
         }
     })();
 
-    Object.keys(data.Characters).forEach(z => {
+    Object.keys(data.characters).forEach(z => {
         if (!(z in redirection)) {
             redirection[z] = {
                 from: []
