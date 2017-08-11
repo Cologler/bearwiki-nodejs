@@ -7,6 +7,9 @@
 // @description:zh-CN  try to take over the world!
 // @author             cologler
 // @match              http://*/*
+// @match              https://*/*
+// @connect            .githubusercontent.com
+// @connect            .github.com
 // @grant              GM_getResourceText
 // @grant              GM_xmlhttpRequest
 // @resource           siteMap    https://github.com/Cologler/bearwiki-nodejs/raw/master/src/siteMap.json
@@ -38,7 +41,7 @@
                     if (ls === undefined) {
                         data[ch] = ls = [];
                     }
-                    isExists = false;
+                    let isExists = false;
                     for (let i = 0; i < ls.length; i++) {
                         let entry = ls[i];
                         if (entry.key == key) {
@@ -138,41 +141,78 @@
     });
 
     let site = siteMap['you-zitsu.com'];
-    let unresolveNodeQueue = [];
     let siteData = null;
     let siteRedirection = null;
     let redirectionMap = null;
 
     function onNode(node) {
-        if (siteData === null || siteRedirection == null) {
-            unresolveNodeQueue.push(node);
-            return;
-        } else {
-            unresolveNodeQueue = [];
+        if (node.childNodes) {
+            node.childNodes.forEach(onNode);
+        }
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            node.wikidata = redirectionMap.match(node.textContent);
+            if (node.wikidata.length > 1) {
+                let parent = node.parentNode;
+                let replacement = document.createElement('span');
+                node.wikidata.forEach(z => {
+                    let nextNode = null;
+                    if (z.type === 0) {
+                        nextNode = document.createTextNode(z.text);
+                    } else {
+                        nextNode = document.createElement('span');
+                        nextNode.innerText = z.text;
+                        nextNode.style.color = 'red';
+                        nextNode.onmouseover = () => {
+                            console.log('hover');
+                        };
+                        nextNode.onmouseout = () => {
+                            console.log('unhover');
+                        };
+                    }
+                    replacement.appendChild(nextNode);
+                });
+                replacement.wikidata = node.wikidata;
+                parent.replaceChild(replacement, node);
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            switch (node.tagName.toLowerCase()) {
+                case 'p':
+                    break;
+            }
         }
     }
 
-    function onSiteDataUpdate(namespace, data) {
-        siteData = data;
-    }
-
-    function onSiteRedirectionUpdate(namespace, data) {
-        siteRedirection = data;
-        redirectionMap = new StringSearcherMap();
-        Object.keys(data).forEach(key => {
-            key.from.forEach(z => redirectionMap.add(z, key));
-        });
-        console.log(redirectionMap);
+    function onNodeRoot(node) {
+        if (!node) {
+            return;
+        }
+        onNode(node);
     }
 
     let observer = null;
     function listenPage() {
+        console.log('listening');
         if (observer) {
             observer.disconnect();
         }
         observer = new MutationObserver(mrs => {
             mrs.forEach(mr => {
-                console.log(mr.type);
+                switch (mr.type) {
+                    case 'childList':
+                        mr.addedNodes.forEach(onNodeRoot);
+                        break;
+
+                    case 'attributes':
+                        break;
+
+                    case 'characterData':
+                        break;
+
+                    default:
+                        console.log(mr.type);
+                        break;
+                }
             });
         });
         observer.observe(document, {
@@ -181,7 +221,25 @@
             characterData: true,
             attributes: true
         });
-        onNode(document);
+        onNodeRoot(document);
+    }
+
+    function onSiteDataUpdate(namespace, data) {
+        siteData = data;
+        if (siteRedirection) {
+            listenPage();
+        }
+    }
+
+    function onSiteRedirectionUpdate(namespace, data) {
+        siteRedirection = data;
+        redirectionMap = new StringSearcherMap();
+        Object.keys(data).forEach(key => {
+            data[key].from.forEach(z => redirectionMap.add(z, key));
+        });
+        if (siteData) {
+            listenPage();
+        }
     }
 
     function loadSite() {
@@ -206,5 +264,4 @@
     }
 
     loadSite();
-    listenPage();
 })();
