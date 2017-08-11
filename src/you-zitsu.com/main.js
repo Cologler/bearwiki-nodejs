@@ -3,15 +3,22 @@ const jsdom = require("jsdom");
 const fs = require('fs');
 const { JSDOM } = jsdom;
 
-async function work() {
+async function main() {
     const host = 'http://you-zitsu.com';
     let response = await request('http://you-zitsu.com/character/');
     const dom = new JSDOM(response.body);
 
-    let data = {
-        endpoint: 'http://you-zitsu.com',
-        characters: {}
-    };
+    const dataPath = 'data.json';
+    let data = (() => {
+        if (fs.existsSync(dataPath)) {
+            return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+        } else {
+            return {
+                endpoint: 'http://you-zitsu.com',
+                characters: {}
+            };
+        }
+    })();
     dom.window.document.querySelectorAll('.chara-list .chara-nav').forEach(z => {
         let charaId = z.hash;
         let charaData = dom.window.document.querySelector(charaId);
@@ -29,19 +36,28 @@ async function work() {
             propertiesMap[t[0]] = t[1];
         });
 
-        data.characters[characterName] = {
+        let character = data.characters[characterName];
+        if (character === undefined) {
+            data.characters[characterName] = character = {
+                images: {},
+                properties: {},
+                propertiesMap: {}
+            };
+        }
+        Object.assign(character, {
             name: characterName,
             cv: cvName,
-            images: {
-                header: imageHeader,
-                character: imageCharacter
-            },
-            properties: {
-                class: propertyClass
-            },
             description: description,
             propertiesMap: propertiesMap
-        };
+        });
+        Object.assign(character.images, {
+            header: imageHeader,
+            character: imageCharacter
+        });
+        Object.assign(character.properties, {
+            class: propertyClass
+        });
+        Object.assign(character.propertiesMap, propertiesMap);
     });
 
     (function () { // save data
@@ -67,14 +83,14 @@ async function work() {
     });
 
     (function () { // save data
-        let fd = fs.openSync(redirectionPath, 'w');
-        fs.writeSync(fd, JSON.stringify(redirection, null, 4));
+        //let fd = fs.openSync(redirectionPath, 'w');
+        //fs.writeSync(fd, JSON.stringify(redirection, null, 4));
     })();
 }
 
 (async function() {
     try {
-        await work()
+        await main()
     } catch (error) {
         console.error(error);
     }

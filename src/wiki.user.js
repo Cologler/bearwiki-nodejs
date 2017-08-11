@@ -12,6 +12,8 @@
 // @connect            .github.com
 // @grant              GM_getResourceText
 // @grant              GM_xmlhttpRequest
+// @grant              GM_addStyle
+// @grant              unsafeWindow
 // @resource           siteMap    https://github.com/Cologler/bearwiki-nodejs/raw/master/src/siteMap.json
 // ==/UserScript==
 
@@ -20,6 +22,10 @@
 
 (function() {
     'use strict';
+
+    if (unsafeWindow !== unsafeWindow.top) {
+        return;
+    }
 
     const endpoint = 'https://github.com/Cologler/bearwiki-nodejs/raw/master/src';
 
@@ -62,7 +68,11 @@
 
             this.remove = function(key) {
                 throw 'not impl remove method.';
-            }
+            };
+
+            this.sort = function() {
+                Object.values(data).forEach(z => z.sort((x, y) => y.key.length - x.key.length));
+            };
 
             this.match  = function(str) {
                 let results = [];
@@ -145,7 +155,94 @@
     let siteRedirection = null;
     let redirectionMap = null;
 
+    let ignoreSet = new Set();
+
+    class CharacterBox {
+        constructor() {
+            this._container = null;
+            this._header = null;
+            this._name = null;
+            this._desc = null;
+        }
+
+        init() {
+            if (this._container) {
+                return;
+            }
+
+            this._container = document.createElement('div');
+            this._container.id = 'cb-root';
+            this._container.innerHTML = `
+            <div class="cb-col">
+              <img id="cb-ch-header"></img>
+              <p id="cb-ch-name"></p>
+            </div>
+            <div class="cb-col">
+              <p id="cb-ch-desc"></p>
+            </div>
+            `;
+            this._header = this._container.querySelector('#cb-ch-header');
+            this._name = this._container.querySelector('#cb-ch-name');
+            this._desc = this._container.querySelector('#cb-ch-desc');
+            this._container.style.display = 'none';
+
+            GM_addStyle(`
+                #cb-root {
+                    position: fixed;
+                    z-index: 999999;
+                    top: 45%;
+                    left: 10%;
+                    box-shadow: 0 2px 30px 0 rgba(0,0,0,0.3), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+                    padding: 8px;
+                    background: white;
+                }
+                .cb-col {
+                    display: inline-block;
+                    vertical-align: top;
+                }
+                #cb-ch-header {
+                }
+                #cb-ch-name {
+                    text-align: center;
+                    font-size: 15px;
+                    margin-top: 4px;
+                }
+                #cb-ch-desc {
+                    max-width: 320px;
+                    margin: 2px 0px 2px 8px;
+                }
+            `);
+
+            ignoreSet.add(this._container);
+            ignoreSet.add(this._header);
+            ignoreSet.add(this._name);
+            ignoreSet.add(this._desc);
+            document.body.appendChild(this._container);
+        }
+
+        hover(node) {
+            this.init();
+
+            let charaData = siteData.characters[node.wikidata.data];
+            this._header.src = siteData.endpoint + charaData.images.header;
+            this._name.innerText = charaData.name;
+            this._desc.innerText = charaData.description;
+            this._container.style.display = 'block';
+        }
+
+        unhover() {
+            if (this._container) {
+                this._container.style.display = 'none';
+            }
+        }
+    }
+    let characterBox = new CharacterBox();
+
     function onNode(node) {
+        if (ignoreSet.has(node)) {
+            return;
+        }
+
         if (node.childNodes) {
             node.childNodes.forEach(onNode);
         }
@@ -162,12 +259,12 @@
                     } else {
                         nextNode = document.createElement('span');
                         nextNode.innerText = z.text;
-                        nextNode.style.color = 'red';
+                        nextNode.wikidata = z;
                         nextNode.onmouseover = () => {
-                            console.log('hover');
+                            characterBox.hover(nextNode);
                         };
                         nextNode.onmouseout = () => {
-                            console.log('unhover');
+                            characterBox.unhover();
                         };
                     }
                     replacement.appendChild(nextNode);
@@ -192,7 +289,6 @@
 
     let observer = null;
     function listenPage() {
-        console.log('listening');
         if (observer) {
             observer.disconnect();
         }
@@ -235,8 +331,10 @@
         siteRedirection = data;
         redirectionMap = new StringSearcherMap();
         Object.keys(data).forEach(key => {
+            redirectionMap.add(key, key);
             data[key].from.forEach(z => redirectionMap.add(z, key));
         });
+        redirectionMap.sort();
         if (siteData) {
             listenPage();
         }
