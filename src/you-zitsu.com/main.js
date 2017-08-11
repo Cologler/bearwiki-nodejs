@@ -16,11 +16,13 @@ async function work() {
         let charaId = z.hash;
         let charaData = dom.window.document.querySelector(charaId);
 
-        let imageHeader = host + z.querySelector('img').src;
+        let imageHeader = z.querySelector('img').src;
+        let st = imageHeader.startsWith(host);
         let characterName = charaData.querySelector('.name').textContent;
-        let imageCharacter = host + charaData.querySelector('.vis img').src;
+        let imageCharacter = charaData.querySelector('.vis img').src;
         let propertyClass = charaData.querySelector('.class').textContent;
         let cvName = charaData.querySelector('.cv').textContent.replace('CV：', '');
+        let description = charaData.querySelector('div.text').textContent;
         let propertiesMap = {};
         charaData.querySelector('.bo').textContent.split('\n').forEach(x => {
             let t = x.split('：', 2);
@@ -37,7 +39,7 @@ async function work() {
             properties: {
                 class: propertyClass
             },
-            description: charaData.querySelector('.text').innerText,
+            description: description,
             propertiesMap: propertiesMap
         };
     });
