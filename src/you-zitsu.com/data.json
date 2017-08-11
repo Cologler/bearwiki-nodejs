@@ -1,0 +1,400 @@
+{
+    "Characters": {
+        "綾小路清隆": {
+            "name": "綾小路清隆",
+            "cv": "千葉翔也",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/1_th.png",
+                "character": "http://you-zitsu.com/assets/character/1.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "10月20日",
+                "身長": "176cm",
+                "星座": "てんびん座",
+                "自分の好きなところ": "特になし",
+                "自分の嫌いなところ": "教科書通りに動くこと",
+                "いつもいる場所": "自室"
+            }
+        },
+        "堀北鈴音": {
+            "name": "堀北鈴音",
+            "cv": "鬼頭明里",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/2_th.png",
+                "character": "http://you-zitsu.com/assets/character/2.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "2月15日",
+                "身長": "156cm",
+                "スリーサイズ": "B79(D)/W54/H79",
+                "星座": "みずがめ座",
+                "自分の好きなところ": "真面目さ・勤勉さ",
+                "自分の嫌いなところ": "甘さがあるところ",
+                "いつもいる場所": "自室"
+            }
+        },
+        "櫛田桔梗": {
+            "name": "櫛田桔梗",
+            "cv": "久保ユリカ",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/3_th.png",
+                "character": "http://you-zitsu.com/assets/character/3.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "1月23日",
+                "身長": "155cm",
+                "スリーサイズ": "B82(D)/W55/H83",
+                "星座": "みずがめ座",
+                "自分の好きなところ": "初対面でも仲良くなれること",
+                "自分の嫌いなところ": "一部の人とうまくいかず悩むところ",
+                "いつもいる場所": "学校、カフェ、ケヤキモール、寮など幅広く"
+            }
+        },
+        "佐倉愛里": {
+            "name": "佐倉愛里",
+            "cv": "Ｍ・Ａ・Ｏ",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/4_th.png",
+                "character": "http://you-zitsu.com/assets/character/4.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "10月15日",
+                "身長": "153cm",
+                "スリーサイズ": "B96(F)/W60/H90",
+                "星座": "てんびん座",
+                "自分の好きなところ": "写真好き",
+                "自分の嫌いなところ": "人が苦手",
+                "いつもいる場所": "自室、校舎裏、学校敷地内の人気のない場所"
+            }
+        },
+        "軽井沢恵": {
+            "name": "軽井沢恵",
+            "cv": "竹達彩奈",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/5_th.png",
+                "character": "http://you-zitsu.com/assets/character/5.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "3月8日",
+                "身長": "154cm",
+                "スリーサイズ": "B76(C)/W54/H77",
+                "星座": "うお座",
+                "自分の好きなところ": "クラスの中心人物であること",
+                "自分の嫌いなところ": "身体に残った傷痕",
+                "いつもいる場所": "カフェ、ケヤキモール。特にカラオケ"
+            }
+        },
+        "平田洋介": {
+            "name": "平田洋介",
+            "cv": "逢坂良太",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/6_th.png",
+                "character": "http://you-zitsu.com/assets/character/6.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "9月1日",
+                "身長": "174cm",
+                "星座": "おとめ座",
+                "自分の好きなところ": "器用貧乏な部分",
+                "自分の嫌いなところ": "割り切れない性格",
+                "いつもいる場所": "カフェ、ケヤキモール、教室、部室"
+            }
+        },
+        "高円寺六助": {
+            "name": "高円寺六助",
+            "cv": "岩澤俊樹",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/7_th.png",
+                "character": "http://you-zitsu.com/assets/character/7.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "4月3日",
+                "身長": "181cm",
+                "星座": "おひつじ座",
+                "自分の好きなところ": "自分の全て",
+                "自分の嫌いなところ": "なし",
+                "いつもいる場所": "カフェ、トレーニングルーム"
+            }
+        },
+        "須藤健": {
+            "name": "須藤健",
+            "cv": "竹内栄治",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/8_th.png",
+                "character": "http://you-zitsu.com/assets/character/8.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "10月5日",
+                "身長": "183cm",
+                "星座": "てんびん座",
+                "自分の好きなところ": "運動神経の良さ。喧嘩の強さ",
+                "自分の嫌いなところ": "恋愛が下手糞",
+                "いつもいる場所": "体育館"
+            }
+        },
+        "池寛治": {
+            "name": "池寛治",
+            "cv": "阿部大樹",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/9_th.png",
+                "character": "http://you-zitsu.com/assets/character/9.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "6月16日",
+                "身長": "160cm",
+                "星座": "ふたご座",
+                "自分の好きなところ": "盛り上げることが得意",
+                "自分の嫌いなところ": "勉強が嫌い",
+                "いつもいる場所": "ケヤキモール、友達の部屋"
+            }
+        },
+        "山内春樹": {
+            "name": "山内春樹",
+            "cv": "岩中睦樹",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/10_th.png",
+                "character": "http://you-zitsu.com/assets/character/10.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "5月30日",
+                "身長": "168cm",
+                "星座": "ふたご座",
+                "自分の好きなところ": "人気者であること",
+                "自分の嫌いなところ": "ちょっとだけ見栄を張りがち",
+                "いつもいる場所": "ケヤキモール、友達の部屋"
+            }
+        },
+        "幸村輝彦": {
+            "name": "幸村輝彦",
+            "cv": "郷田翼",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/11_th.png",
+                "character": "http://you-zitsu.com/assets/character/11.png"
+            },
+            "properties": {
+                "class": "1-D"
+            },
+            "propertiesMap": {
+                "誕生日": "7月11日",
+                "星座": "かに座"
+            }
+        },
+        "坂柳有栖": {
+            "name": "坂柳有栖",
+            "cv": "日高里菜",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/21_th.png",
+                "character": "http://you-zitsu.com/assets/character/21.png"
+            },
+            "properties": {
+                "class": "1-A"
+            },
+            "propertiesMap": {
+                "誕生日": "3月12日",
+                "身長": "150cm",
+                "スリーサイズ": "B70(A)/W54/H77",
+                "星座": "うお座",
+                "自分の好きなところ": "日々自己を高めること",
+                "自分の嫌いなところ": "運動が苦手",
+                "いつもいる場所": "カフェ"
+            }
+        },
+        "葛󠄁城康平": {
+            "name": "葛󠄁城康平",
+            "cv": "日野聡",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/22_th.png",
+                "character": "http://you-zitsu.com/assets/character/22.png"
+            },
+            "properties": {
+                "class": "1-A"
+            },
+            "propertiesMap": {
+                "誕生日": "8月29日",
+                "身長": "180cm",
+                "星座": "おとめ座",
+                "自分の好きなところ": "何事も真面目に取り組める",
+                "自分の嫌いなところ": "笑顔が苦手",
+                "いつもいる場所": "ケヤキモール、教室"
+            }
+        },
+        "一之瀬帆波": {
+            "name": "一之瀬帆波",
+            "cv": "東山奈央",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/31_th.png",
+                "character": "http://you-zitsu.com/assets/character/31.png"
+            },
+            "properties": {
+                "class": "1-B"
+            },
+            "propertiesMap": {
+                "誕生日": "7月20日",
+                "身長": "159cm",
+                "スリーサイズ": "B95(F)/W61/H91",
+                "星座": "かに座",
+                "自分の好きなところ": "友達がたくさん出来たこと",
+                "自分の嫌いなところ": "失敗を引きずるところ",
+                "いつもいる場所": "教室、カフェ、ケヤキモール"
+            }
+        },
+        "神崎隆二": {
+            "name": "神崎隆二",
+            "cv": "若山晃久",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/32_th.png",
+                "character": "http://you-zitsu.com/assets/character/32.png"
+            },
+            "properties": {
+                "class": "1-B"
+            },
+            "propertiesMap": {
+                "誕生日": "12月5日",
+                "身長": "174cm",
+                "星座": "いて座",
+                "自分の好きなところ": "欲があまりない部分",
+                "自分の嫌いなところ": "初対面と上手く溶け込めない",
+                "いつもいる場所": "図書館"
+            }
+        },
+        "龍園翔": {
+            "name": "龍園翔",
+            "cv": "水中雅章",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/41_th.png",
+                "character": "http://you-zitsu.com/assets/character/41.png"
+            },
+            "properties": {
+                "class": "1-C"
+            },
+            "propertiesMap": {
+                "誕生日": "10月20日",
+                "身長": "173cm",
+                "星座": "てんびん座",
+                "自分の好きなところ": "自身の考え方",
+                "自分の嫌いなところ": "特になし",
+                "いつもいる場所": "カラオケ"
+            }
+        },
+        "伊吹澪": {
+            "name": "伊吹澪",
+            "cv": "小松未可子",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/42_th.png",
+                "character": "http://you-zitsu.com/assets/character/42.png"
+            },
+            "properties": {
+                "class": "1-C"
+            },
+            "propertiesMap": {
+                "誕生日": "7月27日",
+                "身長": "159cm",
+                "スリーサイズ": "B73(B)/W54/H78",
+                "星座": "しし座",
+                "自分の好きなところ": "考え方が大人なこと",
+                "自分の嫌いなところ": "負けず嫌いすぎるところ",
+                "いつもいる場所": "屋上"
+            }
+        },
+        "堀北学": {
+            "name": "堀北学",
+            "cv": "梅原裕一郎",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/51_th.png",
+                "character": "http://you-zitsu.com/assets/character/51.png"
+            },
+            "properties": {
+                "class": "3-A"
+            },
+            "propertiesMap": {
+                "身長": "178cm",
+                "自分の好きなところ": "特になし",
+                "自分の嫌いなところ": "特になし",
+                "いつもいる場所": "生徒会室"
+            }
+        },
+        "橘茜": {
+            "name": "橘茜",
+            "cv": "小原好美",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/52_th.png",
+                "character": "http://you-zitsu.com/assets/character/52.png"
+            },
+            "properties": {
+                "class": "3-A"
+            },
+            "propertiesMap": {
+                "身長": "155cm",
+                "スリーサイズ": "B80(C)/W60/H82",
+                "自分の好きなところ": "生徒会が好きなこと",
+                "自分の嫌いなところ": "冷静さを欠くことがある",
+                "いつもいる場所": "生徒会室"
+            }
+        },
+        "茶柱佐枝": {
+            "name": "茶柱佐枝",
+            "cv": "佐藤利奈",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/61_th.png",
+                "character": "http://you-zitsu.com/assets/character/61.png"
+            },
+            "properties": {
+                "class": "1-D 担任"
+            },
+            "propertiesMap": {
+                "スリーサイズ": "B86(F)/W59/H84",
+                "自分の好きなところ": "意外と花が好きなこと",
+                "自分の嫌いなところ": "甘さを捨てきれない",
+                "いつもいる場所": "職員室、花壇"
+            }
+        },
+        "星之宮知恵": {
+            "name": "星之宮知恵",
+            "cv": "金元寿子",
+            "images": {
+                "header": "http://you-zitsu.com/assets/character/62_th.png",
+                "character": "http://you-zitsu.com/assets/character/62.png"
+            },
+            "properties": {
+                "class": "1-B 担任"
+            },
+            "propertiesMap": {
+                "身長": "155cm",
+                "スリーサイズ": "B78(C)/W56/H78",
+                "自分の好きなところ": "同年代でも可愛いところ",
+                "自分の嫌いなところ": "学生のツヤに勝てないところ",
+                "いつもいる場所": "自室、バー"
+            }
+        }
+    }
+}
