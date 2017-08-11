@@ -4,6 +4,15 @@
 
         "name": "ようこそ実力至上主义の教室へ TV アニメ",
         "name:zh-cn": "欢迎来到实力至上主义教室 TV 动画",
-        "name:zh": "歡迎來到實力至上主義教室 TV 動畫"
+        "name:zh": "歡迎來到實力至上主義教室 TV 動畫",
+
+        "siteMap": {
+            "bilibili": [
+                { "mode": "startswith", "value": "https://bangumi.bilibili.com/anime/6339/" }
+            ],
+            "tieba": [
+                { "mode": "equals", "value": "欢迎来到实力至上主义教室" }
+            ]
+        }
     }
 }
