@@ -1,5 +1,8 @@
 {
     "endpoint": "http://you-zitsu.com",
+    "configuration": {
+        "propertiesMap-color": "#e4007f"
+    },
     "characters": {
         "綾小路清隆": {
             "name": "綾小路清隆",
