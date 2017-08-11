@@ -7,13 +7,15 @@
 // @description:zh-CN  try to take over the world!
 // @author             cologler
 // @match              http://*/*
-// @match              https://*/*
+// @match              https://bangumi.bilibili.com/anime/*
 // @connect            .githubusercontent.com
 // @connect            .github.com
 // @grant              GM_getResourceText
 // @grant              GM_xmlhttpRequest
 // @grant              GM_addStyle
 // @grant              unsafeWindow
+// @require            https://cdn.jsdelivr.net/jquery/3.2.1/jquery.min.js
+// @require            https://greasyfork.org/scripts/32209-stringsearchermap/code/StringSearcherMap.js
 // @resource           siteMap    https://github.com/Cologler/bearwiki-nodejs/raw/master/src/siteMap.json
 // ==/UserScript==
 
@@ -28,163 +30,147 @@
     }
 
     const endpoint = 'https://github.com/Cologler/bearwiki-nodejs/raw/master/src';
-
     const languages = [navigator.language.toLowerCase()];
     languages.push(languages[0].split('-')[0]);
 
-    class StringSearcherMap {
-        constructor(table = null) {
-            let data = {};
-            let minKey = -1;
-
-            this.add = function(key, value) {
-                if (typeof key !== 'string') {
-                    throw 'key must be string';
-                }
-                if (key) {
-                    let ch = key[0];
-                    let ls = data[ch];
-                    if (ls === undefined) {
-                        data[ch] = ls = [];
-                    }
-                    let isExists = false;
-                    for (let i = 0; i < ls.length; i++) {
-                        let entry = ls[i];
-                        if (entry.key == key) {
-                            entry.value = value;
-                            isExists = true;
-                            break;
-                        }
-                    }
-                    if (!isExists) {
-                        ls.push({
-                            key: key,
-                            value: value
-                        });
-                    }
-                    minKey = minKey == -1 ? key.length : Math.min(minKey, key.length);
-                }
-            };
-
-            this.remove = function(key) {
-                throw 'not impl remove method.';
-            };
-
-            this.sort = function() {
-                Object.values(data).forEach(z => z.sort((x, y) => y.key.length - x.key.length));
-            };
-
-            this.match  = function(str) {
-                let results = [];
-                if (str && minKey !== -1) {
-                    let lastStart = 0;
-                    let len = str.length - minKey + 1;
-                    for (let i = 0; i < len; i++) {
-                        let ch = str[i];
-                        let ls = data[ch];
-                        if (ls) {
-                            for (let j = 0; j < ls.length; j ++) {
-                                let item = ls[j];
-                                if (str.startsWith(item.key, i)) {
-                                    if (lastStart < i) {
-                                        results.push({
-                                            type: 0,
-                                            text: str.substr(lastStart, i - lastStart)
-                                        });
-                                    }
-                                    results.push({
-                                        type: 1,
-                                        text: item.key,
-                                        data: item.value
-                                    });
-                                    i += item.key.length;
-                                    lastStart = i;
-                                    i--;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (lastStart < str.length) {
-                        results.push({
-                            type: 0,
-                            text: str.substr(lastStart, str.length - lastStart)
-                        });
-                    }
-                } else {
-                    results.push({
-                        type: 0,
-                        text: str || ''
-                    });
-                }
-                return results;
-            };
-
-            if (table) {
-                let self = this;
-                Object.keys(table).forEach(key => {
-                    self.add(key, table[key]);
-                });
+    function getProperty(source, key) {
+        for (let i = 0; i < languages.length; i++) {
+            let val = source[key + ':' + languages[i]];
+            if (val !== undefined) {
+                return val;
             }
         }
+        return source[key];
     }
 
-    class Site {
-        constructor(data) {
-            this._namespace = data.namespace;
-            this._name = data['name:' + languages[0]] ||
-                         data['name:' + languages[1]] ||
-                         data.name;
-            let self = this;
-            Object.defineProperty(this, 'namespace', {
-                get: () => self._namespace
-            });
-            Object.defineProperty(this, 'name', {
-                get: () => self._name
-            })
-        }
-    }
-
-    let siteMap = JSON.parse(GM_getResourceText('siteMap'));
-    Object.keys(siteMap).forEach(z => {
-        siteMap[z] = new Site(siteMap[z]);
-    });
-
-    let site = siteMap['you-zitsu.com'];
     let siteData = null;
     let siteRedirection = null;
     let redirectionMap = null;
+    let observer = null;
 
-    let ignoreSet = new Set();
+    class SiteContext {
+        constructor(site) {
+            this._site = site;
+        }
+
+        listenPage() {
+            if (observer) {
+                observer.disconnect();
+            }
+            observer = new MutationObserver(mrs => {
+                mrs.forEach(mr => {
+                    switch (mr.type) {
+                        case 'childList':
+                            mr.addedNodes.forEach(onNodeRoot);
+                            break;
+
+                        case 'attributes':
+                            break;
+
+                        case 'characterData':
+                            break;
+
+                        default:
+                            console.log(mr.type);
+                            break;
+                    }
+                });
+            });
+            observer.observe(document, {
+                subtree: true,
+                childList: true,
+                characterData: true,
+                attributes: true
+            });
+            onNodeRoot(document);
+        }
+
+        onSiteDataUpdate(namespace, data) {
+            siteData = data;
+            if (siteRedirection) {
+                this.listenPage();
+            }
+        }
+
+        onSiteRedirectionUpdate(namespace, data) {
+            siteRedirection = data;
+            redirectionMap = new StringSearcherMap();
+            Object.keys(data).forEach(key => {
+                redirectionMap.add(key, key);
+                data[key].from.forEach(z => redirectionMap.add(z, key));
+            });
+            redirectionMap.sort();
+            if (siteData) {
+                this.listenPage();
+            }
+        }
+
+        loadSite() {
+            let self = this;
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: `${endpoint}/${self._site.namespace}/data.json`,
+                onreadystatechange: e => {
+                    if (e.readyState === 4) {
+                        self.onSiteDataUpdate(self._site.namespace, JSON.parse(e.responseText));
+                    }
+                }
+            });
+            GM_xmlhttpRequest({
+                method: 'GET',
+                url: `${endpoint}/${self._site.namespace}/redirection.json`,
+                onreadystatechange: e => {
+                    if (e.readyState === 4) {
+                        self.onSiteRedirectionUpdate(self._site.namespace, JSON.parse(e.responseText));
+                    }
+                }
+            });
+        }
+    }
 
     class CharacterBox {
+        static get CLASS_NAME() { return 'ch-el'; }
+
         constructor() {
             this._container = null;
             this._header = null;
             this._name = null;
             this._desc = null;
+            this._prop = null;
+            this._hover = false;
+            this._charaData = null;
         }
 
         init() {
             if (this._container) {
                 return;
             }
-
-            this._container = document.createElement('div');
+            let self = this;
+            let root = document.createElement('div');
+            root.onmouseover = () => self._hover = true;
+            root.onmouseout  = () => self.unhover();
+            this._container = root;
             this._container.id = 'cb-root';
+            this._container.classList.add(CharacterBox.CLASS_NAME);
             this._container.innerHTML = `
-            <div class="cb-col">
-              <img id="cb-ch-header"></img>
-              <p id="cb-ch-name"></p>
+            <div class="ch-el cb-col">
+              <img id="cb-ch-header" class="ch-el" async></img>
+              <p id="cb-ch-name" class="ch-el"></p>
             </div>
-            <div class="cb-col">
-              <p id="cb-ch-desc"></p>
+            <div class="ch-el cb-col">
+              <p id="cb-ch-desc" class="ch-el"></p>
+              <div id="cb-ch-prop" class="ch-el"></div>
             </div>
             `;
             this._header = this._container.querySelector('#cb-ch-header');
             this._name = this._container.querySelector('#cb-ch-name');
             this._desc = this._container.querySelector('#cb-ch-desc');
+            this._prop = this._container.querySelector('#cb-ch-prop');
             this._container.style.display = 'none';
+            console.assert(null !== this._header);
+            console.assert(null !== this._name);
+            console.assert(null !== this._desc);
+            console.assert(null !== this._prop);
 
             GM_addStyle(`
                 #cb-root {
@@ -211,35 +197,88 @@
                     max-width: 320px;
                     margin: 2px 0px 2px 8px;
                 }
+                #cb-ch-prop {
+                    margin: 6px 0px 2px 20px;
+                }
             `);
 
-            ignoreSet.add(this._container);
-            ignoreSet.add(this._header);
-            ignoreSet.add(this._name);
-            ignoreSet.add(this._desc);
             document.body.appendChild(this._container);
         }
 
         hover(node) {
+            this._hover = true;
             this.init();
+            let offset =  node.getBoundingClientRect();
+            let top = offset.top + $(node).height() + 55;
+            let left = offset.left + 50;
+            this._container.style.top = top + 'px';
+            this._container.style.left = left + 'px';
+            let self = this;
 
             let charaData = siteData.characters[node.wikidata.data];
-            this._header.src = siteData.endpoint + charaData.images.header;
-            this._name.innerText = charaData.name;
-            this._desc.innerText = charaData.description;
+            if (this._charaData !== charaData) {
+                this._charaData = charaData;
+                this._header.src = '';
+                this._header.src = siteData.endpoint + charaData.images.header;
+                this._name.innerText = getProperty(charaData, 'name');
+                this._desc.innerText = getProperty(charaData, 'description');
+
+                let propKeys = Object.keys(charaData.propertiesMap);
+                if (propKeys.length < this._prop.childNodes.length) {
+                    new Array(this._prop.childNodes.length - propKeys.length).fill().forEach(() => {
+                        this._prop.removeChild(this._prop.childNodes[0]);
+                    });
+                } else if (propKeys.length > this._prop.childNodes.length) {
+                    new Array(propKeys.length - this._prop.childNodes.length).fill().forEach(() => {
+                        let elr = document.createElement('div');
+                        elr.classList.add(CharacterBox.CLASS_NAME);
+
+                        let elk = document.createElement('span');
+                        elk.classList.add(CharacterBox.CLASS_NAME);
+                        elr.appendChild(elk);
+
+                        let elv = document.createElement('span');
+                        elv.classList.add(CharacterBox.CLASS_NAME);
+                        elr.appendChild(elv);
+
+                        this._prop.appendChild(elr);
+
+                        if (siteData.configuration) {
+                            let color = siteData.configuration['propertiesMap-color'];
+                            if (color) {
+                                elk.style.color = color;
+                                elv.style.color = color;
+                            }
+                        }
+                    });
+                }
+                console.assert(propKeys.length == this._prop.childNodes.length);
+                for (let i = 0; i < propKeys.length; i++) {
+                    let val = charaData.propertiesMap[propKeys[i]];
+                    this._prop.childNodes[i].childNodes[0].innerText = propKeys[i] + ' : ';
+                    this._prop.childNodes[i].childNodes[1].innerText = val;
+                }
+            }
             this._container.style.display = 'block';
         }
 
         unhover() {
+            this._hover = false;
+            let self = this;
+
             if (this._container) {
-                this._container.style.display = 'none';
+                setTimeout(() => {
+                    if (this._container && !self._hover) {
+                        this._container.style.display = 'none';
+                    }
+                }, 1300);
             }
         }
     }
     let characterBox = new CharacterBox();
 
     function onNode(node) {
-        if (ignoreSet.has(node)) {
+        if (node.classList && node.classList.contains(CharacterBox.CLASS_NAME)) {
             return;
         }
 
@@ -260,12 +299,8 @@
                         nextNode = document.createElement('span');
                         nextNode.innerText = z.text;
                         nextNode.wikidata = z;
-                        nextNode.onmouseover = () => {
-                            characterBox.hover(nextNode);
-                        };
-                        nextNode.onmouseout = () => {
-                            characterBox.unhover();
-                        };
+                        nextNode.onmouseover = () => characterBox.hover(nextNode);
+                        nextNode.onmouseout  = () => characterBox.unhover();
                     }
                     replacement.appendChild(nextNode);
                 });
@@ -287,79 +322,72 @@
         onNode(node);
     }
 
-    let observer = null;
-    function listenPage() {
-        if (observer) {
-            observer.disconnect();
-        }
-        observer = new MutationObserver(mrs => {
-            mrs.forEach(mr => {
-                switch (mr.type) {
-                    case 'childList':
-                        mr.addedNodes.forEach(onNodeRoot);
-                        break;
+    class Site {
+        constructor(data) {
+            this._namespace = data.namespace;
+            this._name = getProperty(data, 'name');
+            this._data = data;
 
-                    case 'attributes':
-                        break;
-
-                    case 'characterData':
-                        break;
-
-                    default:
-                        console.log(mr.type);
-                        break;
-                }
+            let self = this;
+            Object.defineProperty(this, 'namespace', {
+                get: () => self._namespace
             });
-        });
-        observer.observe(document, {
-            subtree: true,
-            childList: true,
-            characterData: true,
-            attributes: true
-        });
-        onNodeRoot(document);
-    }
+            Object.defineProperty(this, 'name', {
+                get: () => self._name
+            });
+        }
 
-    function onSiteDataUpdate(namespace, data) {
-        siteData = data;
-        if (siteRedirection) {
-            listenPage();
+        match() {
+            function matchRule(rule, value) {
+                switch (rule.mode) {
+                    case 'startswith':
+                        return value.startsWith(rule.value);
+                    case 'equals':
+                        return value === rule.value;
+                    case 'regex':
+                        return new RegExp(rule.value).test(value);
+                    default:
+                        console.error('unknown mode:' + rule.mode);
+                        return false;
+                }
+            }
+
+            if (/bilibili\.com/.test(location.host)) {
+                let rules = this._data.siteMap['bilibili'];
+                let url = location.href;
+                if (rules) {
+                    return rules.some(z => matchRule(z, url));
+                }
+            } else {
+
+            }
+
+            return false;
         }
     }
 
-    function onSiteRedirectionUpdate(namespace, data) {
-        siteRedirection = data;
-        redirectionMap = new StringSearcherMap();
-        Object.keys(data).forEach(key => {
-            redirectionMap.add(key, key);
-            data[key].from.forEach(z => redirectionMap.add(z, key));
+    function onPageRefresh() {
+        let siteMap = JSON.parse(GM_getResourceText('siteMap'));
+        Object.keys(siteMap).forEach(z => {
+            siteMap[z] = new Site(siteMap[z]);
         });
-        redirectionMap.sort();
-        if (siteData) {
-            listenPage();
+
+        let site = (() => {
+            let sites = Object.values(siteMap);
+            for (let i = 0; i < sites.length; i++) {
+                let s = sites[i];
+                if (s.match()) {
+                    return s;
+                }
+            }
+            return null;
+        });
+
+        if (site) {
+            let siteContext = new SiteContext(site);
+            siteContext.loadSite();
         }
     }
 
-    function loadSite() {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: `${endpoint}/${site.namespace}/data.json`,
-            onreadystatechange: e => {
-                if (e.readyState === 4) {
-                    onSiteDataUpdate(site.namespace, JSON.parse(e.responseText));
-                }
-            }
-        });
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: `${endpoint}/${site.namespace}/redirection.json`,
-            onreadystatechange: e => {
-                if (e.readyState === 4) {
-                    onSiteRedirectionUpdate(site.namespace, JSON.parse(e.responseText));
-                }
-            }
-        });
-    }
-
-    loadSite();
+    onPageRefresh();
 })();
