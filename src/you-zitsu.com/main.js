@@ -9,16 +9,13 @@ async function main() {
     const dom = new JSDOM(response.body);
 
     const dataPath = 'data.json';
-    let data = (() => {
-        if (fs.existsSync(dataPath)) {
-            return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-        } else {
-            return {
-                endpoint: 'http://you-zitsu.com',
-                characters: {}
-            };
-        }
-    })();
+    const redirectionPath = 'redirection.json';
+
+    let data = Object.assign({
+        endpoint: 'http://you-zitsu.com',
+        characters: {}
+    }, fs.existsSync(dataPath) ? JSON.parse(fs.readFileSync(dataPath, 'utf8')) : {});
+
     dom.window.document.querySelectorAll('.chara-list .chara-nav').forEach(z => {
         let charaId = z.hash;
         let charaData = dom.window.document.querySelector(charaId);
@@ -60,19 +57,9 @@ async function main() {
         Object.assign(character.propertiesMap, propertiesMap);
     });
 
-    (function () { // save data
-        let fd = fs.openSync('data.json', 'w');
-        fs.writeSync(fd, JSON.stringify(data, null, 4));
-    })();
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 4), 'utf8');
 
-    const redirectionPath = 'redirection.json';
-    let redirection = (() => {
-        if (fs.existsSync(redirectionPath)) {
-            return JSON.parse(fs.readFileSync(redirectionPath, 'utf8'));
-        } else {
-            return {};
-        }
-    })();
+    let redirection = fs.existsSync(redirectionPath) ? JSON.parse(fs.readFileSync(redirectionPath, 'utf8')) : {};
 
     Object.keys(data.characters).forEach(z => {
         if (!(z in redirection)) {
@@ -82,15 +69,12 @@ async function main() {
         }
     });
 
-    (function () { // save data
-        //let fd = fs.openSync(redirectionPath, 'w');
-        //fs.writeSync(fd, JSON.stringify(redirection, null, 4));
-    })();
+    fs.writeFileSync(redirectionPath, JSON.stringify(redirection, null, 4), 'utf8');
 }
 
 (async function() {
     try {
-        await main()
+        await main();
     } catch (error) {
         console.error(error);
     }

@@ -389,6 +389,7 @@
         })();
 
         if (site) {
+            console.debug('enable site: ' + site.name);
             let siteContext = new SiteContext(site);
             siteContext.loadSite();
         }
