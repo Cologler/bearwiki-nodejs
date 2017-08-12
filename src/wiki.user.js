@@ -5,7 +5,7 @@
 // @description        try to take over the world!
 // @author             cologler
 // @match              https://tieba.baidu.com/*
-// @match              https://bangumi.bilibili.com/anime/*
+// @match              https://*.bilibili.com/*
 // @connect            .githubusercontent.com
 // @connect            .github.com
 // @grant              GM_getResourceText
@@ -152,11 +152,11 @@
             this._container.id = 'cb-root';
             this._container.classList.add(CharacterBox.CLASS_NAME);
             this._container.innerHTML = `
-            <div class="ch-el cb-col">
+            <div class="ch-el cb-col cb-col-1">
               <img id="cb-ch-header" class="ch-el" async></img>
               <p id="cb-ch-name" class="ch-el"></p>
             </div>
-            <div class="ch-el cb-col">
+            <div class="ch-el cb-col cb-col-2">
               <p id="cb-ch-desc" class="ch-el"></p>
               <div id="cb-ch-prop" class="ch-el"></div>
             </div>
@@ -180,10 +180,15 @@
                     box-shadow: 0 2px 30px 0 rgba(0,0,0,0.3), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
                     padding: 8px;
                     background: white;
+                    white-space: nowrap;
                 }
                 .cb-col {
                     display: inline-block;
                     vertical-align: top;
+                    white-space: normal;
+                }
+                .cb-col-2 {
+                    max-width: 360px;
                 }
                 #cb-ch-header {
                 }
@@ -193,7 +198,6 @@
                     margin-top: 4px;
                 }
                 #cb-ch-desc {
-                    max-width: 320px;
                     margin: 2px 0px 2px 8px;
                 }
                 #cb-ch-prop {
@@ -278,18 +282,14 @@
     let characterBox = new CharacterBox();
 
     function onNode(node) {
-        if (node.classList && node.classList.contains(CharacterBox.CLASS_NAME)) {
-            return;
-        }
-
-        if (node.childNodes) {
-            node.childNodes.forEach(onNode);
-        }
-
         if (node.nodeType === Node.TEXT_NODE) {
+            let parent = node.parentNode;
+            if (parent.classList.contains(CharacterBox.CLASS_NAME)) {
+                return;
+            }
+
             node.wikidata = redirectionMap.match(node.textContent);
             if (node.wikidata.length > 1) {
-                let parent = node.parentNode;
                 let replacement = document.createElement('span');
                 node.wikidata.forEach(z => {
                     let nextNode = null;
@@ -308,10 +308,13 @@
                 parent.replaceChild(replacement, node);
             }
         } else if (node.nodeType === Node.ELEMENT_NODE) {
-            switch (node.tagName.toLowerCase()) {
-                case 'p':
-                    break;
+            if (node.classList.contains(CharacterBox.CLASS_NAME)) {
+                return;
             }
+        }
+
+        if (node.childNodes) {
+            node.childNodes.forEach(onNode);
         }
     }
 
@@ -355,9 +358,20 @@
             if (/bilibili\.com/.test(location.host)) {
                 let rules = this._data.siteMap['bilibili'];
                 let url = location.href;
+
                 if (rules) {
-                    return rules.some(z => matchRule(z, url));
+                    if (/bangumi\.bilibili\.com\/anime\//.test(url)) {
+                        return rules.some(z => matchRule(z, url));
+                    }
+
+                    if (/www\.bilibili\.com\/video\/av\d+\//.test(url)) {
+                        let tags = Array.slice(document.querySelectorAll('.tag')).map(z => z.innerText);
+                        return rules.some(z => {
+                            return tags.some(x => matchRule(z, x));
+                        });
+                    }
                 }
+
             } else if (location.host === 'tieba.baidu.com') {
                 let rules = this._data.siteMap['tieba'];
                 let tbn = document.querySelector('.card_title_fname');
@@ -371,12 +385,12 @@
         }
     }
 
-    function onPageRefresh() {
-        let siteMap = JSON.parse(GM_getResourceText('siteMap'));
-        Object.keys(siteMap).forEach(z => {
-            siteMap[z] = new Site(siteMap[z]);
-        });
+    let siteMap = JSON.parse(GM_getResourceText('siteMap'));
+    Object.keys(siteMap).forEach(z => {
+        siteMap[z] = new Site(siteMap[z]);
+    });
 
+    function onPageRefresh() {
         let site = (() => {
             let sites = Object.values(siteMap);
             for (let i = 0; i < sites.length; i++) {
