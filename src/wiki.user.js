@@ -69,7 +69,7 @@
                             break;
 
                         default:
-                            console.log(mr.type);
+                            console.debug(mr.type);
                             break;
                     }
                 });
@@ -105,7 +105,7 @@
 
         loadSite() {
             let self = this;
-            console.log(`${endpoint}/${self._site.namespace}/data.json`)
+
             GM_xmlhttpRequest({
                 method: 'GET',
                 url: `${endpoint}/${self._site.namespace}/data.json`,
@@ -258,6 +258,7 @@
                     this._prop.childNodes[i].childNodes[1].innerText = val;
                 }
             }
+
             this._container.style.display = 'block';
         }
 
@@ -270,7 +271,7 @@
                     if (this._container && !self._hover) {
                         this._container.style.display = 'none';
                     }
-                }, 1300);
+                }, 800);
             }
         }
     }
