@@ -27,6 +27,22 @@
         return;
     }
 
+    GM_addStyle(`
+    .wikispan:before, .wikispan-root:before {
+        content: none !important;
+    }
+    .wikispan-root {
+        position: inherit !important;
+        border: inherit !important;
+        vertical-align: inherit !important;
+    }
+    .wikispan {
+        position: initial !important;
+        border: initial !important;
+        vertical-align: initial !important;
+    }
+    `);
+
     const endpoint = 'https://github.com/Cologler/bearwiki-nodejs/raw/master/src';
     const languages = [navigator.language.toLowerCase()];
     languages.push(languages[0].split('-')[0]);
@@ -284,28 +300,32 @@
     function onNode(node) {
         if (node.nodeType === Node.TEXT_NODE) {
             let parent = node.parentNode;
-            if (parent.classList.contains(CharacterBox.CLASS_NAME)) {
-                return;
-            }
+            if (parent) {
+                if (parent.classList && parent.classList.contains(CharacterBox.CLASS_NAME)) {
+                    return;
+                }
 
-            node.wikidata = redirectionMap.match(node.textContent);
-            if (node.wikidata.length > 1) {
-                let replacement = document.createElement('span');
-                node.wikidata.forEach(z => {
-                    let nextNode = null;
-                    if (z.type === 0) {
-                        nextNode = document.createTextNode(z.text);
-                    } else {
-                        nextNode = document.createElement('span');
-                        nextNode.innerText = z.text;
-                        nextNode.wikidata = z;
-                        nextNode.onmouseover = () => characterBox.hover(nextNode);
-                        nextNode.onmouseout  = () => characterBox.unhover();
-                    }
-                    replacement.appendChild(nextNode);
-                });
-                replacement.wikidata = node.wikidata;
-                parent.replaceChild(replacement, node);
+                node.wikidata = redirectionMap.match(node.textContent);
+                if (node.wikidata.length > 1) {
+                    let replacement = document.createElement('span');
+                    replacement.classList.add('wikispan-root');
+                    node.wikidata.forEach(z => {
+                        let nextNode = null;
+                        if (z.type === 0) {
+                            nextNode = document.createTextNode(z.text);
+                        } else {
+                            nextNode = document.createElement('span');
+                            nextNode.classList.add('wikispan');
+                            nextNode.innerText = z.text;
+                            nextNode.wikidata = z;
+                            nextNode.onmouseover = () => characterBox.hover(nextNode);
+                            nextNode.onmouseout  = () => characterBox.unhover();
+                        }
+                        replacement.appendChild(nextNode);
+                    });
+                    replacement.wikidata = node.wikidata;
+                    parent.replaceChild(replacement, node);
+                }
             }
         } else if (node.nodeType === Node.ELEMENT_NODE) {
             if (node.classList.contains(CharacterBox.CLASS_NAME)) {
