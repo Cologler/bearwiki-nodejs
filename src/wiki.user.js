@@ -32,9 +32,8 @@
         content: none !important;
     }
     .wikispan-root {
-        position: inherit !important;
-        border: inherit !important;
-        vertical-align: inherit !important;
+        all: initial !important;
+        text-shadow: inherit !important;
     }
     .wikispan {
         position: initial !important;
